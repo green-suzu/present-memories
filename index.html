@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>プレゼントノキロク</title>
+  <link rel="stylesheet" href="main.css">
+
+  <!--Bootstrap-->
+  <link rel="stylesheet" href="./bootstrap.min.css">
+  
+  <!--Vue.js-->
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+  <!--TypeSquareフォント-->
+  <!--<script type="text/javascript" src="//typesquare.com/3/tsst/script/ja/typesquare.js?5fd9f61bf03c4d73b1d8319dac1e02e5&fadein=10" charset="utf-8"></script>-->
+
+</head>
+
+<body>
+  <!-- Loading -->
+  <section id="loading" class="view">
+    <i class="fas fa-spinner initial-loading-icon"></i>
+  </section>
+  <!-- end Loading -->
+
+  <!-- Login -->
+  <section id="login" class="view">
+    <div class="container">
+      <h2 class="pb-0 pt-2 m-0 text-center">
+        <img src="./images/brandTitle_Mobile.png" class="brandTitle-image_mobile">
+        <img src="./images/brandTitle.png" class="brandTitle-image">
+      </h2>
+      <div class="row justify-content-center">
+        <div class="col-sm-10 col-md-8 col-lg-6 m-3">
+          <form class="login-form" v-on:submit.prevent="onSubmit">
+            <div class="form-group login__email">
+              <label for="login-email" class="col-form-label">
+                メールアドレス
+              </label>
+              <input v-model="email" type="email" class="form-control" required>
+            </div>
+            <div class="form-group login__password">
+              <label for="login-password" class="col-form-label">
+                パスワード
+              </label>
+              <input v-model="password" type="password" class="form-control" required>
+            </div>
+            <div v-show="isFailed" class="alert alert-danger">ログインに失敗しました。</div>
+            <div class="form-group login__submit pt-4 pb-0">
+              <button id="login__submit-button" type="submit" class="btn btn-primary col-12">
+                ログイン
+              </button>
+            </div>
+          </form>
+        <section v-if="isTryLogin" class="row justify-content-center">
+          <i class="fas fa-spinner login-loading-icon col-5"></i>
+        </section>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- end Login -->
+
+  <!-- present view-->
+  <div id="itemView" class="view">
+    <header>
+      <nav class="navbar navbar-expand-sm navbar-dark bg-primary">
+        <div class="navbar-brand" id="brand-name">
+          <img src="./images/brandTitle_Mini.png" alt="brand-title" class="pt-1">
+        </div>
+
+        <!--画面幅sm以下時に出るハンバーガボタン-->
+        <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#nav-bar">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!--メニュー項目-->
+        <div class="collapse navbar-collapse" id="nav-bar">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item present-category" v-bind:class="{active: activeTab === 'tabs-for'}" v-on:click="activeTab = 'tabs-for'">
+              <a href="#" class="nav-link">アゲタ</a>
+            </li>
+            <li class="nav-item present-category" v-bind:class="{active: activeTab === 'tabs-from'}" v-on:click="activeTab = 'tabs-from'">
+              <a href="#" class="nav-link">モラッタ</a>
+            </li>
+            <li class="nav-item present-category" v-bind:class="{active: activeTab === 'tabs-favorite'}" v-on:click="activeTab = 'tabs-favorite'">
+              <a href="#" class="nav-link">キニナル</a>
+            </li>
+          </ul>
+          <ul class="navbar-nav" v-on:click="onLogoutButton($event)">
+            <li class="nav-item"><a href="#" class="nav-link">ログアウト</a></li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+
+    <main class="p-2">
+      <div id="app-title">
+        <h1 class="pb-0 pt-5 m-0 text-center">
+          <img src="./images/brandTitle.png">
+        </h1>
+        <div class="text-center col-8 offset-2 col-sm-6 offset-sm-3 col-md-4 offset-md-4">
+          <a href="#regist-present-modal" data-toggle="modal" class="btn btn-primary btn-block p-3">
+            <i class="fas fa-plus" aria-hidden="true"></i>
+            トウロク
+          </a>
+        </div>
+      </div>
+      
+      <div id="category-title" class="m-5">
+        <div v-if="activeTab === 'tabs-for'" v-cloak>
+          <p class="text-center" >アゲタ</p>
+        </div>
+        <div v-else-if="activeTab === 'tabs-from'" v-cloak>
+          <p class="text-center" >モラッタ</p>
+        </div>
+        <div v-else-if="activeTab === 'tabs-favorite'" v-cloak>
+          <p class="text-center">キニナル</p>
+        </div>
+      </div>
+
+      <div class="container">
+        <ul class="nav nav-tabs justify-content-around pt-3 pr-0 pl-0 row" id="category-tabs">
+          <li class="nav-item" v-bind:class="{active: activeTab === 'tabs-for'}" v-on:click="activeTab = 'tabs-for'">
+            <a href="#" class="nav-link pl-3 pr-3 m-0" data-toggle="tab">
+              アゲタ
+            </a>
+          </li>
+          <li class="nav-item" v-bind:class="{active: activeTab === 'tabs-from'}" v-on:click="activeTab = 'tabs-from'">
+            <a href="#" class="nav-link p-2 m-0" data-toggle="tab">
+              モラッタ
+            </a>
+          </li>
+          <li class="nav-item" v-bind:class="{active: activeTab === 'tabs-favorite'}" v-on:click="activeTab = 'tabs-favorite'">
+            <a href="#" class="nav-link p-2 m-0" data-toggle="tab">
+              キニナル
+            </a>
+          </li>
+        </ul>
+
+        <section class="tabs-content mt-0 mb-3 ml-3 mr-3 pt-3">
+          <div v-show="activeTab === 'tabs-for'" id="item-list-for" class="row items justify-content-around justify-content-md-between"></div>
+          <div v-show="activeTab === 'tabs-from'" id="item-list-from" class="row items justify-content-around justify-content-md-between"></div>
+          <div v-show="activeTab === 'tabs-favorite'" id="item-list-favorite" class="row items justify-content-around justify-content-md-between"></div>
+        </section>
+      </div>
+    </main>
+
+    <a href="#regist-present-modal" data-toggle="modal" v-cloak class="regist-present-for btn-mobile-regist shadow">
+      <i class="fas fa-plus mobile-regist-icon"></i>
+    </a>
+  </div>
+
+  <a href="#" id="back-to-top" v-on:click="onBackToTopButton($event)">
+    <i class="fas fa-chevron-up back-to-top-icon"></i>
+  </a>
+  
+  <!-- present view template-->
+  <div id="present-template">
+    <div class="present-card m-2">
+      <div class="card bg-light pb-0">
+        <div class="card-header row p-2 m-0">
+          <div class="categoryText col-5"></div>
+          <div class="humanName col-7"></div>
+        </div>
+        <div class="m-0 p-0" v-bind:data-category="categoryText">
+          <div class="card-body p-0 m-auto">
+            <div class="present-item__image-wrapper p-auto">
+              <img class="present-item__image img-thumbnail d-block m-auto">
+            </div>
+          </div>
+        </div>
+        <div class="item-data">
+          <div class="date card-text mt-0 pt-0 mb-2"></div>
+          <div class="itemTitle card-text mt-0 pt-0 mb-2"></div>
+          <div class="memo card-text mt-0 pt-0 mb-2"></div>
+        </div>
+        <div class="border-line d-block"></div>
+        <div class="delete-button p-2 m-0 ml-auto">
+          <button type="submit" class="btn btn-danger item__delete">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- end present view template-->
+
+  <!-- end present view-->
+  
+
+  <!--regist-present modal-->
+  <div id="regist-present-modal" class="modal fade m-auto" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content m-auto p-2">
+        <div class="modal-header m-2">
+          <h5 class="m-0">プレゼントの登録</h5>
+          <button type="button" class="close" data-dismiss="modal" area-label="Close"> 
+            <span area-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body justify-content-center mb-0 pb-0">
+          <div class="justify-content-center">
+            <div class="present-modal-item__image-wrapper m-auto justify-content-center">
+              <canvas id="canvas" v-bind:width="width" v-bind:height="height"></canvas>
+              <img id="output" src="">
+            </div>
+          </div>
+          
+          <form id="present-regist-form row">
+            <div class="form-group row justify-content-around p-2">
+              <div class="col-sm-3 modal-text_title">カテゴリー</div>
+              <select v-on:change="onChangeSelectCategory($event.target.value)" class="custom-select col-sm-8">
+                <option value="1">アゲタ</option>
+                <option value="2">モラッタ</option>
+                <option value="3">キニナル</option>
+              </select>
+            </div>
+            
+            <div class="form-group row justify-content-around p-2">
+              <label for="add-present-human" class="col-sm-3 modal-text_title">名前</label>
+              <div class="col-sm-8 p-0">
+                <input id="add-present-human" v-model="humanName" type="text" class="form-control" required>
+              </div>
+            </div>
+            <div class="form-group row justify-content-around p-2">
+              <label for="add-present-name" class="col-sm-3 modal-text_title">品名</label>
+              <div class="col-sm-8 p-0">
+                <input id="add-present-name" v-model="itemTitle" type="text" class="form-control" required>
+              </div>
+            </div>
+            <div class="form-group row justify-content-around p-2">
+              <label for="add-presented-date" class="col-sm-3 modal-text_title">日付</<label for=""></label>
+              <div class="col-sm-8 p-0">
+                <input id="add-presented-date" v-model="presentedDate" type="text" class="form-control datepicker">
+              </div>
+            </div>
+            <div class="form-group row justify-content-around p-2">
+              <label for="add-present-memo" class="col-sm-3 modal-text_title">メモ</label>
+              <div class="col-sm-8 p-0">
+                <input id="add-present-memo" v-model="memo" type="text" class="form-control">
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="m-2 p-2 row justify-content-around">
+          <div class="col-7 col-8">
+            <input v-on:input="onSelectImage" id="add-present-image" type="file" accept=".jpg,.jpeg,.png,.gif, image/jpeg,image/png,image/gif" class="custom-file-input" required>
+            <label class="custom-file-label file-select" for="add-present-image">{{selectImageTitle}}</label>
+          </div>
+          <div class="offset-1 col-3 modal-regist-button p-0">
+            <button id="form-regist-button" v-on:click="onRegistItemButton" type="submit" class="btn btn-primary btn-block">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+          <div class="text-align-center m-auto p-0">
+             <div v-if="isSaving" class="justify-content-center mt-3">
+              <i class="fas fa-spinner regist-loading-icon"></i>
+             </div>
+            <div v-else-if="isSaveFailed"class="alert dismissible alert-danger mt-3">保存できませんでした。</div>
+          </div>
+        </div>
+        <!--</div>-->
+      </div>
+    </div>
+  </div>
+  <!--end regist-present modal-->
+
+  <!--Img compressor-->
+  <script src="https://cdn.jsdelivr.net/gh/fengyuanchen/compressorjs/dist/compressor.min.js"></script>
+  
+  <!--Bootstrap-->
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  
+  <!-- Font Awesome -->
+  <script defer src="https://use.fontawesome.com/releases/v5.7.2/js/all.js"></script>
+
+  <!-- bootstrap-datepicker -->
+  <script src="./bootstrap-datepicker-1.9.0/bootstrap-datepicker.min.js"></script>
+  <script src="./bootstrap-datepicker-1.9.0/bootstrap-datepicker.ja.min.js"></script>
+  <link rel="stylesheet" href="./bootstrap-datepicker-1.9.0/bootstrap-datepicker.min.css">
+  
+  <!-- The core Firebase JS SDK is always required and must be listed first -->
+  <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-app.js"></script>
+
+  <!-- TODO: Add SDKs for Firebase products that you want to use
+        https://firebase.google.com/docs/web/setup#available-libraries -->
+  <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-storage.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-analytics.js"></script>
+
+<script>
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+var firebaseConfig = {
+  apiKey: "AIzaSyCAK35Vy3yAdI6LLDKdA0-kXGdNdV8Oozg",
+  authDomain: "presents-record.firebaseapp.com",
+  projectId: "presents-record",
+  storageBucket: "presents-record.appspot.com",
+  messagingSenderId: "1092576547409",
+  appId: "1:1092576547409:web:d84cde0c394a90b0651e70",
+  measurementId: "G-7N13SC841J"
+};
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+firebase.analytics();
+</script>
+
+<!--firebaseのscriptのあとに記述-->
+<script src="login_ItemView.js"></script>
+<script src="itemRegist.js"></script>
+<script src="main.js"></script> 
+
+</body>
+</html>
